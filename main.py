@@ -11,7 +11,7 @@ class BurkeBinPacking:
 
     def init_data(self):
         # self.set_static_items()
-        self.generate_items(10000, 9)
+        self.generate_items(100, 9)
         self.start_items_count = len(self.items)
         self.items = self.quick_sort(self.items)
         self.capacity = 10
@@ -98,11 +98,7 @@ class BurkeBinPacking:
 
     # Ищем наиболее подходящий предмет, который будет занимать максимальное количество как по ширине, так и по высоте
     def search_best_item(self, lower_place):
-        best_item = {
-            'index': 0,
-            'width': self.items[0][0],
-            'height': self.items[0][1],
-        }
+        best_item = None
         founded = False
 
         for index in range(len(self.items)):
@@ -110,12 +106,19 @@ class BurkeBinPacking:
             is_better = False
 
             if item[0] <= lower_place['width']:
-                founded = True
-
-                if item[0] > best_item['width']:
+                if not founded:
+                    founded = True
                     is_better = True
-                elif item[0] == best_item['width'] and item[1] > best_item['height']:
-                    is_better = True
+                    best_item = {
+                        'index': index,
+                        'width': item[0],
+                        'height': item[1],
+                    }
+                else:
+                    if item[0] > best_item['width']:
+                        is_better = True
+                    elif item[0] == best_item['width'] and item[1] > best_item['height']:
+                        is_better = True
 
                 if is_better:
                     best_item = {
@@ -125,21 +128,26 @@ class BurkeBinPacking:
                     }
 
         if not founded:
-            self.search_best_item(self.fill_lower_place(lower_place))
+            self.fill_lower_place(lower_place)
+            return self.search_best_item(self.get_lower_place())
 
         return best_item
 
     # Приравнивает высоту нижнего уровня к высоте ближайшего уровня
     def fill_lower_place(self, lower_place):
-        second_lower_level_height = self.get_level_height(2)
+        difference = self.get_level_height(2) - self.items_heights[lower_place['index']]
+        print(self.items_heights)
+        print(difference)
         for i in range(lower_place['index'], lower_place['index'] + lower_place['width']):
-            lower_place[i] += second_lower_level_height
-
-        return lower_place
+            self.items_heights[i] += difference
+        print(self.items_heights)
 
     # Возвращает высоту конкретного уровня (1 - минимальный)
     def get_level_height(self, level):
-        levels = self.quick_sort(list(set(self.items_heights)), True)   # Список уникальных значений высот, отсортированный от меньшего к большему
+        # Список уникальных значений высот, отсортированный от меньшего к большему
+        levels = sorted(list(set(self.items_heights)))
+        print('Levels')
+        print(levels)
         levels_count = len(levels)
 
         if levels_count < level:
@@ -180,16 +188,16 @@ class BurkeBinPacking:
         self.init_data()
 
         for i in range(0, self.start_items_count):
-            print(i)
-            print(self.items)
+            print(f"Step - {i + 1}")
+            # print(f"Items - {self.items}")
             lower_place = self.get_lower_place()
-            print(lower_place)
+            # print(f"Lower - {lower_place}")
             best_item = self.search_best_item(lower_place)
-            print(best_item)
+            # print(f"Best item - {best_item}")
             self.put(lower_place, best_item)
-            print(self.items)
+            # print(f"Updated items - {self.items}")
 
-            print(self.items_heights)
+            print(f"Heights - {self.items_heights}")
             print()
 
 
