@@ -1,7 +1,5 @@
 from random import randint
 
-import numpy as np
-
 
 class BurkeBinPacking:
     items = []
@@ -135,19 +133,17 @@ class BurkeBinPacking:
 
     # Приравнивает высоту нижнего уровня к высоте ближайшего уровня
     def fill_lower_place(self, lower_place):
+        print(self.items)
         difference = self.get_level_height(2) - self.items_heights[lower_place['index']]
-        print(self.items_heights)
-        print(difference)
+        print(f"Filled - {lower_place} for {difference}")
+
         for i in range(lower_place['index'], lower_place['index'] + lower_place['width']):
             self.items_heights[i] += difference
-        print(self.items_heights)
 
     # Возвращает высоту конкретного уровня (1 - минимальный)
     def get_level_height(self, level):
         # Список уникальных значений высот, отсортированный от меньшего к большему
         levels = sorted(list(set(self.items_heights)))
-        print('Levels')
-        print(levels)
         levels_count = len(levels)
 
         if levels_count < level:
